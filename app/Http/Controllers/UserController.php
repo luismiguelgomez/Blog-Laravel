@@ -124,11 +124,6 @@ class UserController extends Controller
 
     public function update(Request $request) {
 
-    	//Comprobar si el usuario está identificado
-    	$token = $request->header('Authorization');
-    	$jwtAuth = new \JwtAuth();
-    	$checkToken = $jwtAuth->checkToken($token);
-
         //Recoger datos por post
         $json = $request->input('json', null);
         $params_array = json_decode($json, true);
@@ -172,6 +167,35 @@ class UserController extends Controller
             );
         }
 
+        return response()->json($data, $data['code']);
+    }
+
+    public function upload(Request $request) {
+        // Recojer los datos de la petición
+        //'file0' -> sera el nombre de los archivos
+        $image = $request->file('file0');
+
+        // Guardar la imagen
+        if ($image) {
+            $image_name = time().$image->getClientOriginalName();
+            \Storage::disk('users')->put($image_name, \File::get($image));
+
+            $data = array(
+                'code' => 200 ,
+                'status' => 'success',
+                'image' => $image_name
+            );
+        } else {
+              //Devolver el resultado
+            $data = array(
+                'code' =>400 ,
+                'status' => 'error',
+                'message' => 'Error al subir imagen' 
+            );
+
+        }
+
+      
         return response()->json($data, $data['code']);
     }
 }
