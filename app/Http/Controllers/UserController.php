@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\User;
 
 class UserController extends Controller
@@ -124,11 +125,6 @@ class UserController extends Controller
 
     public function update(Request $request) {
 
-    	//Comprobar si el usuario está identificado
-    	$token = $request->header('Authorization');
-    	$jwtAuth = new \JwtAuth();
-    	$checkToken = $jwtAuth->checkToken($token);
-
         //Recoger datos por post
         $json = $request->input('json', null);
         $params_array = json_decode($json, true);
@@ -173,5 +169,59 @@ class UserController extends Controller
         }
 
         return response()->json($data, $data['code']);
+    }
+
+    public function upload(Request $request) {
+        // Recojer los datos de la petición
+        //'file0' -> sera el nombre de los archivos
+        $image = $request->file('file0');
+
+        //Validar imagen
+        $validate =\Validator::make($request->all(), [
+            'file0' => 'required|image|mimes:jpg,jpeg,png,git,webp,jpf'
+        ]);
+
+        // Guardar la imagen
+        if (!$image || $validate->fails()) {
+            //Devolver el resultado
+            $data = array(
+                'code' =>400 ,
+                'status' => 'error',
+                'message' => 'Error al subir imagen' 
+            );
+
+        } else {
+            $image_name = time().$image->getClientOriginalName();
+            \Storage::disk('users')->put($image_name, \File::get($image));
+
+            $data = array(
+                'code' => 200 ,
+                'status' => 'success',
+                'image' => $image_name
+            );
+
+        }
+
+      
+        return response()->json($data, $data['code']);
+    }
+
+    public function getImage($filename) {
+        $isset = \Storage::disk('users')->exists($filename);
+
+        if ($isset) {
+            $file = \Storage::disk('users')->get($filename);
+            return new Response ($file, 200);    
+        } else {
+            $data = array(
+                'code' => 400,
+                'status' => 'error',
+                'message' => 'La imagen no existe.' 
+            );
+
+            return response()->json($data, $data['code']);
+        }
+
+        
     }
 }
