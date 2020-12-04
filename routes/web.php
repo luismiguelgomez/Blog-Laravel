@@ -51,9 +51,20 @@ Route::get('/testOrm', 'PruebasController@testOrm');
 	Route::post('/api/register', 'UserController@register');
 	Route::post('/api/login', 'UserController@login');
 	Route::put('/api/user/update', 'UserController@update');
+	Route::post('/api/user/upload', 'UserController@upload')->middleware(ApiAuthMiddleware::class);
+	Route::get('/api/user/avatar/{filename}', 'UserController@getimage');
+
 
 
 	//Rutas del controlador de categorias
+
 	Route::resource('/api/category', 'CategoryController' );
-	Route::post('/api/user/upload', 'UserController@upload')->middleware(ApiAuthMiddleware::class);
-	Route::get('/api/user/avatar/{filename}', 'UserController@getimage');
+
+	Route::resource('/api/category', 'CategoryController');
+
+	//Rutas del controlador de entradas
+	Route::resource('/api/post', 'PostController');
+
+
+	Route::post('/api/post/upload', 'PostController@upload');
+
