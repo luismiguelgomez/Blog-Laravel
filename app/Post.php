@@ -6,8 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
 {
-    //
+    //Tabla de la base de datos
     protected $table = 'posts';
+
+    protected $fillable = [
+    	'title', 'content', 'category_id'
+    ];
+
 
     //Relacion de muchos a uno
     public function user() {
