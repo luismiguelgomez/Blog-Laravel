@@ -235,10 +235,7 @@ class PostController extends Controller
  			);
  		} else {
  			$image_name = time().$image->getClientOriginalName();
- 			\Storage::disk('images')->put($image_name, \File::get($image));
- 			echo "estoy en 239";
- 			die();
- 			
+ 			\Storage::disk('images')->put($image_name, \File::get($image));			
 
  			$data = array(
  				'code' => 200,
@@ -250,6 +247,46 @@ class PostController extends Controller
 
  		//Devolver datos
  		return response()->json($data, $data['code']);
+ 	}
+
+ 	public function getImage($filename) {
+ 		//Comprobar si existe el fichero
+ 		$isset  = \Storage::disk('images')->exists($filename);
+
+ 		if ($isset) {
+ 			//Conseguir la imagen
+ 			$file = \Storage::disk('images')->get($filename);
+
+ 			//Devolver la imagen
+ 			return new Response($file, 200);
+ 		} else {
+ 			$data = array(
+ 				'code' => 404,
+ 				'status' => 'error',
+ 				'message' => 'La imagen no existe'
+ 			);
+ 		}
+ 		
+ 		//Mostrar el error
+ 		return response()->json($data, $data['code']);
+ 	}
+
+ 	public function getPostsByCategory($id) {
+ 		$post = Post::where('category_id', $id)->get();
+
+ 		return response()->json([
+ 			'status' => 'success',
+ 			'posts' => $post
+ 		], 200);
+ 	}
+
+ 	public function getPostsByUser($id) {
+ 		$posts = Post::where('user_id', $id)->get();
+
+ 		return response()->json([
+ 			'status' => 'success',
+ 			'posts' => $posts
+ 		], 200);
  	}
 
 }
